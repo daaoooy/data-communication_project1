@@ -47,6 +47,15 @@
     #define BUFFER_SIZE 1024
     #define IP "127.0.0.1"
 
+#### 소켓 
+
+소켓 생성 시 사용한 함수들이다.
+
+    int socket(int domain, int type, int protocol);
+    void* memset(void* ptr, int value, size_t num); 
+    int vind(int sockfd, (struct sockaddr *) my_addr, socklen_t addrlen)
+
+socket 함수에서 domain은 어떤 영역에서 통신을 할지, type은 어떤 프로토콜을 사용할지 (UDP를 사용하기 위해 SOCK_DGRAM을 사용), protocol은 도메인과 유형에 따라서 사용할 프로토콜을 결정하는 부분이다.  
 
 먼저 buffer에 Greeting 이라는 문자열을 담아 보내준다. 이 때, sendto() 함수를 사용하였다.
 
