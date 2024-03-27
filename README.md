@@ -53,9 +53,26 @@
 
     int socket(int domain, int type, int protocol);
     void* memset(void* ptr, int value, size_t num); 
-    int vind(int sockfd, (struct sockaddr *) my_addr, socklen_t addrlen)
+    int bind(int sockfd, (struct sockaddr *) my_addr, socklen_t addrlen)
 
-socket 함수에서 domain은 어떤 영역에서 통신을 할지, type은 어떤 프로토콜을 사용할지 (UDP를 사용하기 위해 SOCK_DGRAM을 사용), protocol은 도메인과 유형에 따라서 사용할 프로토콜을 결정하는 부분이다.  
+1. socket()
+   - **domain** 어떤 영역에서 통신을 할지
+   - **type**은 어떤 프로토콜을 사용할지 (UDP를 사용하기 위해 SOCK_DGRAM을 사용)
+   - **protocol**은 도메인과 유형에 따라서 사용할 프로토콜을 결정하는 부분이다.
+2. memset ()
+    - **ptr** 세팅하고자 하는 메모리의 시작 주소
+    - **value** 메모리에 세팅하고자 하는 값
+    - **num** 길이
+3. bind ()
+   - 소켓에 주소를 할당 해주는 함수. ip 주소, port번호를 할당해줄 수 있음.
+   - **sockfd** 소켓 디스크립터
+   - **my_addr** 주소 정보를 할당.
+   - **addr_len** my_addr의 길이
+
+소켓을 생성해주고, htonl과 htons를 이용해 
+
+
+#### 시작    
 
 먼저 buffer에 Greeting 이라는 문자열을 담아 보내준다. 이 때, sendto() 함수를 사용하였다.
 
@@ -67,7 +84,7 @@ socket 함수에서 domain은 어떤 영역에서 통신을 할지, type은 어�
 - **flags**    전송을 위한 옵션
 - **addr**     목적지 주소 정보
 - **addr_len** 목적지 주소
-  
+
 실패 시 반환 되는 값이 -1이 이므로 0보다 작을 시 에러가 났음을 표시해주었다.
 
 먼저 전송할 파일은 **입력**을 통해 받았다. “Enter the file name to send: " 라는 문장이 나오면 전송하고자 하는 파일 이름을 적어주었다.
