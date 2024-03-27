@@ -69,8 +69,6 @@
    - **my_addr** 주소 정보를 할당.
    - **addr_len** my_addr의 길이
 
-소켓을 생성해주고, htonl과 htons를 이용해 
-
 
 #### 시작    
 
