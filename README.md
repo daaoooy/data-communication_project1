@@ -34,7 +34,9 @@
 ### 1. 프로그램 설명
 + 중간 중간 sleep(3); 을 적어놓은 이유 : Sender와 Receiver가 서로 주고 받고 하는 과정을 좀 더 자세히 보기 위해서이다.
 
-사용한 라이브러리와 정의해준 것들은 아래와 같다.
+
+#### + 헤더 파일
+사용한 헤더들이다. 기본적인 함수들과 소켓 생성, 파일에 관한 함수와 나머지 추가적인 부분(문자열 복사, 에러 처리 등)에 사용하기 위해서 아래와 같은 헤더들을 선언해주었다.
 
     #include <stdio.h>
     #include <sys/socket.h>
@@ -42,12 +44,36 @@
     #include <arpa/inet.h>
     #include <string.h>
     #include <unistd.h>
-    
-    #define PORT 12345
-    #define BUFFER_SIZE 1024
-    #define IP "127.0.0.1"
 
-#### 소켓 
+#### + 사용한 변수
+- Sender
+  1. **int sockfd** : 소켓 디스크립터로 사용한다.
+  2. **int n** : recvfrom 함수가 반환하는 값을 받을 것이다.
+  3. **int sender_size, receiver_size** : sizeof() 를 이용해 주소들의 사이즈를 담을 것이다.
+  4. **char buffer [BUFFER_SIZE]** : 전송할 내용을 담아 사용할 것이다. (전송할 때 마다 재사용)
+  5. **char file_name [BUFFER_SIZE]** : 버퍼는 계속해서 담는 내용들이 바뀌므로, file_name에 입력 받은 파일 이름을 담아 놓는다.
+  6. **struct sockaddr_in receiver_addr, sender_addr** : 소켓의 주소를 담는다. (구조체)
+
+[struct sockaddr_in]]
+
+먼저 socketaddr 구조체에는 2개의 멤버 변수를 가진다
+> 1. sa_family : 주소 체계를 구분하기 위한 변수 
+> 2. sa_data : 실제 주소를 저장하기 위한 변수
+
+이 프로그램에서 사용한 socketaddr_in 은 위 구조체에서 sa_family가 AF_INET 인 경우에 사용하는 구조체이다.
+사용하는 IP주소는 IPv4 주소 체계이다. 
+> 1. **sin_family** : 항상 AF_INET으로 설정해준다.
+> 2. **sin_port** : 포트 번호를 설정해준다.
+> 3. **sin_addr** : 호스트의 ip 주소
+> 4. **sin_zero** : 반드시 모두 0으로 채워져 있어야 하는 8비트의 dummy 데이터이다.
+
+프로그램에서는 아래와 같이 작성해주었다.
+
+    struct sockaddr_in receiver_addr, sender_addr;
+
+ 자세한 설명은 아래 소켓 생성 부분과 함께 설명하겠다.   
+
+#### ! 소켓 
 
 소켓 생성 시 사용한 함수들이다.
 
@@ -68,6 +94,8 @@
    - **sockfd** 소켓 디스크립터
    - **my_addr** 주소 정보를 할당.
    - **addr_len** my_addr의 길이
+
+
 
 
 #### 시작    
