@@ -86,14 +86,17 @@ UDP 소켓을 이용한 Sender, Receiver 프로그램 만들기
 
   ### **사용한 함수 (중요하게 사용된 것들)**
   
-  > int socket(int domain, int type, int protocol);      
+  > int socket(int domain, int type, int protocol);
+
+   - 사용하고자 하는 총신 프로토콜을 지정한다.
    - **domain** 어떤 영역에서 통신을 할지
    - **type**은 어떤 프로토콜을 사용할지 (UDP를 사용하기 위해 SOCK_DGRAM을 사용)
    - **protocol**은 도메인과 유형에 따라서 사용할 프로토콜을 결정하는 부분이다.
 
      
   > void* memset(void* ptr, int value, size_t num);
-     
+
+   - 메모리를 특정 값으로 세팅한다.  
    - **ptr** 세팅하고자 하는 메모리의 시작 주소
    - **value** 메모리에 세팅하고자 하는 값
    - **num** 길이
@@ -101,13 +104,14 @@ UDP 소켓을 이용한 Sender, Receiver 프로그램 만들기
 
   > int bind(int sockfd, (struct sockaddr *) my_addr, socklen_t addrlen)
      
-   - 소켓에 주소를 할당 해주는 함수. ip 주소, port번호를 할당해줄 수 있음.
+   - 소켓에 주소를 할당 해주는 함수.
    - **sockfd** 소켓 디스크립터
    - **my_addr** 주소 정보를 할당.
    - **addr_len** my_addr의 길이
 
   > int sendto(int s, const void *msg, size_t len, int flags, const struct sockaddr *addr, socklen_t addr_len);
 
+  - 데이터를 UDP 패킷으로 상대방에게 전송한다.
   - **s**        소켓 디스크립터
   - **msg**      전송할 데이터
   - **len**      데이터의 바이트 단위 길이
@@ -116,7 +120,8 @@ UDP 소켓을 이용한 Sender, Receiver 프로그램 만들기
   - **addr_len** 목적지 주소
 
   > int recvfrom(int s, void *buf, size_t len, int flags, struct sockaddr *addr, socklen_t *addr_len)
- 
+
+  - 데이터를 UDP 패킷으러 상대방으로부터 받는다.
   - **s** 소켓 디스크립터
   - **buf** 버퍼
   - **len** 버퍼의 바이트 단위 길이
@@ -136,15 +141,16 @@ UDP 소켓을 이용한 Sender, Receiver 프로그램 만들기
     	perror("Socket Creation failed.");
     	exit(EXIT_FAILURE);
     }
+
+    sender_size = sizeof(sender_addr);
+    receiver_size = sizeof(receiver_addr);  
     
-    memset(&receiver_addr, 0, sizeof(receiver_addr));
+    memset(&receiver_addr, 0, receiver_size);
     receiver_addr.sin_family = AF_INET;
     
     inet_pton(AF_INET, IP, &(receiver_addr.sin_addr.s_addr));
     receiver_addr.sin_port = htons(PORT);
-    
-    sender_size = sizeof(sender_addr);
-    receiver_size = sizeof(receiver_addr);  
+
 
 먼저 소켓을 생성해준다. socket() 함수를 사용해주었고 IPv4 영역에서 통신하기 위해 AF_INET을, UDP 통신을 위해 SOCK_DGRAM을, 프로토콜 값으론 0을 사용했다. 소켓 생성에 실패했을 때를 대비하여 에러 처리도 해주었다.
 
@@ -263,6 +269,9 @@ while문을 이용해 데이터를 전송한다. 바이트 단위로 읽어 전�
     	perror("Socket creation failed.");
     	exit(EXIT_FAILURE);
     }	
+
+    receiver_size = sizeof(receiver_addr);
+    sender_size = sizeof(sender_addr);
     
     memset(&receiver_addr, 0, receiver_size);
     receiver_addr.sin_family = AF_INET;
@@ -270,13 +279,12 @@ while문을 이용해 데이터를 전송한다. 바이트 단위로 읽어 전�
     receiver_addr.sin_addr.s_addr = htonl(INADDR_ANY);
     receiver_addr.sin_port = htons(PORT);
     
-    receiver_size = sizeof(receiver_addr);
-    sender_size = sizeof(sender_addr);
-    
     if(bind(sockfd, (struct sockaddr *)&receiver_addr, receiver_size) < 0) {
     	perror("bind failed.");
     	exit(EXIT_FAILURE);
     }
+
+소켓 생성과 주소 설정 부분은 Sender에서 설명한 것과 동일한데 Receiver에는 bind를 하는 부분이 있다. bind는 서버에서 소켓에 주소를 할당해준다. 
 
 ---
 
@@ -288,7 +296,8 @@ while문을 이용해 데이터를 전송한다. 바이트 단위로 읽어 전�
   	
   	printf("\"%s\" received successfully.\n", buffer);
 
- 
+Sender가 보낸 "Greeting"을 받기 위해 recvfrom() 으로 데이터를 받아준다. 에러가 뜨진 않았는지 체크해주고 성공적으로 받았음을 알리는 문장을 출력해준다. 
+
 ---
 
 
@@ -303,6 +312,10 @@ while문을 이용해 데이터를 전송한다. 바이트 단위로 읽어 전�
   
   	printf("\"file name(%s)\" received successfully.\n", file_name);
 
+파일 이름도 역시 위와 동일한 방식으로 받아준다. Sender은 "Greeting"을 보낸 후 파일 이름도 보내줄 것이다. 파일 이름을 사용할 수도 있을 경우를 대비해 file_name 변수에 이름을 담아주었다. 
+
+파일 이름을 잘 전송 받았다는 것을 알리는 문장을 출력해준다.
+
 ---
 
 
@@ -310,14 +323,13 @@ while문을 이용해 데이터를 전송한다. 바이트 단위로 읽어 전�
 
   	printf("Sending \"OK\"..\n");
   
-  	sleep(3);
-  
   	strcpy(buffer, "OK");
   	if (sendto(sockfd, buffer, strlen(buffer), 0, (struct sockaddr *)&sender_addr, sender_size) < 0) {
   		perror("sendto failed.");
   		exit(EXIT_FAILURE);
   	}
 	
+Greeting과 파일 이름을 잘 받았다면 Receiver는 Sender에게 잘 받았다는 응답 "OK"를 보낸다. sendto()를 사용해주어 데이터를 전송한다. 
 
 ---
 
@@ -325,13 +337,13 @@ while문을 이용해 데이터를 전송한다. 바이트 단위로 읽어 전�
 #### 파일 데이터 받기
 
   	printf("---- ..Receiving File.. ----\n");
-  			
-  	sleep(3);
-  		
+   
   	n = recvfrom(sockfd, buffer, BUFFER_SIZE, 0, (struct sockaddr *)&sender_addr, &sender_size);
   	recvfrom_check(n);
   	buffer[n] = '\0';
-    
+
+OK 응답을 받은 Sender는 Receiver에게 파일을 보내기 시작할 것이다. Receiver는 recvfrom()을 사용해 파일을 전송 받는다.
+
 ---
 
 
@@ -341,8 +353,12 @@ while문을 이용해 데이터를 전송한다. 바이트 단위로 읽어 전�
   	fgets(save_file_name, BUFFER_SIZE, stdin);
   	save_file_name[strlen(save_file_name)-1] = '\0';
    
-    FILE *new_file = fopen(save_file_name, "w");
-    fputs(buffer, new_file);
+        FILE *new_file = fopen(save_file_name, "w");
+        fputs(buffer, new_file);
+
+ 	fclose(new_file);
+
+Sender로 부터 받은 파일 데이터를 새로운 파일로 저장해줄 것인데, 새로운 파일의 이름은 입력으로 받는다. fgets()로 파일 이름을 입력 받고,  fopen()으로 새로운 파일을 생성 후  fputs()로 그 파일에 데이터를 적는다.
 
 ---
 
@@ -353,20 +369,64 @@ while문을 이용해 데이터를 전송한다. 바이트 단위로 읽어 전�
   	recvfrom_check(n);
   	buffer[n] = '\0';
   
-  	printf("Server Response > %s\n", buffer);
+  	printf("Sender Response > %s\n", buffer);
+
+Receiver는 Sender가 파일 전송을 마쳤음을 알리는 Finish 응답을 받는다. 화면에 응답을 잘 받았다는 출력을 보내준다.
+
 ---
 
 
 #### WellDone 응답 보내기
 
     printf("Sending \"WellDone\"..\n\n");
-    	
-    sleep(3);
-    
+    	 
     strcpy(buffer, "WellDone");
     if (sendto(sockfd, buffer, strlen(buffer), 0, (struct sockaddr *)&sender_addr, sender_size) < 0) {
     	perror("sendto failed");
     	exit(EXIT_FAILURE);
     }
+
+파일을 잘 전송 받았고, Finish 응답까지 받았다면 Receiver는 Sender에게 sendto() 함수를 이용해 잘 받았다고 WellDone 응답을 보내준다. 
+
+---
+
+
+# 프로그램 실행 화면
+
+
+1. 프로그램 실행시 첫 화면
+![스크린샷 2024-03-28 233811](https://github.com/daaoooy/data-communication_project1/assets/143688136/5a6ec0f5-9214-4be3-ab59-ccae30582439)
+
+2. 파일 입력 후 OK 응답을 주고 받는 모습
+![스크린샷 2024-03-28 233826](https://github.com/daaoooy/data-communication_project1/assets/143688136/f04969e7-24db-4960-bc81-60f63787a86b)
+
+3. 파일을 보내기 시작
+![스크린샷 2024-03-28 231341](https://github.com/daaoooy/data-communication_project1/assets/143688136/886716fe-4b1e-498c-9275-b69359f3889b)
+
+4. 새로운 파일 저장 후 Finish 응답까지 받은 상태
+![스크린샷 2024-03-28 231415](https://github.com/daaoooy/data-communication_project1/assets/143688136/01bca504-1770-4a48-b925-7c0958fae934)
+
+5. WellDone 응답까지 완료한 후 최종 모습
+![스크린샷 2024-03-28 232305](https://github.com/daaoooy/data-communication_project1/assets/143688136/752eb4b5-9d20-4c89-8cdb-a294a51bcca1)
+
+6. 데이터를 저장한 새로운 파일
+![스크린샷 2024-03-28 233606](https://github.com/daaoooy/data-communication_project1/assets/143688136/6e8a8bc1-419f-4d1f-b895-ec408f8cc823)
+
+
+
+
+
+
+
+
+# 요약
+
+소켓을 생성하고 주소를 지정, bind 통해 UDP 통신으로 데이터를 주고 받을 수 있는 환경을 만들어 주었고 sendto() 함수와 recvfrom() 함수를 이용해 Receiver와 Sender가 데이터를 주고 받을 수 있도록 해주었다. 서로 주고 받는 과정을 보기 위해 화면에 문장을 출력해주었다. 응답을 받았다면 그 응답을 화면에, 응답을 보냈다면 보냈음을 화면에 출력해주었다.  프로그램 코드 중간 중간에 sleep(3); 을 적어주었다. sleep(3); 을 통해 주고 받는 과정을 한 단계씩 확인할 수 있었다. 파일 전송에 있어서 전송할 파일 이름과 Receiver가 받아 저장할 새로운 파일 이름은 입력을 통해 받았다. 프로그램을 실행해보면 같은 디렉토리 안에 새로운 파일이 생김을 확인할 수 있다.  두 프로그램은 Receiver가 파일 데이터를 다 받고 WellDone이라는 응답을 보내면 종료된다.
+
+
+
+
+
+
 
 
