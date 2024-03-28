@@ -152,7 +152,7 @@ UDP 소켓을 이용한 Sender, Receiver 프로그램 만들기
     receiver_addr.sin_port = htons(PORT);
 
 
-먼저 소켓을 생성해준다. socket() 함수를 사용해주었고 IPv4 영역에서 통신하기 위해 AF_INET을, UDP 통신을 위해 SOCK_DGRAM을, 프로토콜 값으론 0을 사용했다. 소켓 생성에 실패했을 때를 대비하여 에러 처리도 해주었다.
+먼저 소켓을 생성해준다. socket() 함수를 사용해주었고 IPv4 영역에서 통신하기 위해 AF_INET을, UDP 통신을 위해 SOCK_DGRAM을, 프로토콜 값으론 0을 사용했다. 소켓 생성에 실패했을 때를 대비하여 에러 처리도 해주었다. memset()으로 메모리의 내용을 원하는 크기만큼 특정 값으로 세팅한다. 앞에서 sockaddr_in 구조체를 설명했듯이 sin_family는 AF_INET으로 해준다.
 
 여기서 inet_pton() 함수를 사용해 문자열 형태의 ip 주소를 binary 형태로 변환 후 receiver_addr 구조체의 호스트 ip 주소를 지정해주었고, htons() 함수를 사용해 PORT (12345로 지정해주었음)를 호스트 바이트 순서에서 네트워크 바이트 순서로 바꾸어주어 receiver_addr의 sin_port를 지정해주었다.
 
